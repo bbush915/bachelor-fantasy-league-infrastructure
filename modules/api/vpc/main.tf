@@ -21,15 +21,17 @@ resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.default.id
 
   ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -61,13 +63,27 @@ resource "aws_subnet" "public_1" {
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_public_subnet_${var.environment}"
-    Public      = "true"
+  }
+}
+
+resource "aws_subnet" "public_2" {
+  availability_zone       = "${var.aws_region}d"
+  vpc_id                  = aws_vpc.default.id
+  cidr_block              = "10.0.4.0/24"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Application = "Bachelor Fantasy League"
   }
 }
 
 resource "aws_route_table_association" "default" {
   subnet_id      = aws_subnet.public_1.id
+  route_table_id = aws_vpc.default.main_route_table_id
+}
+
+resource "aws_route_table_association" "public_2" {
+  subnet_id      = aws_subnet.public_2.id
   route_table_id = aws_vpc.default.main_route_table_id
 }
 

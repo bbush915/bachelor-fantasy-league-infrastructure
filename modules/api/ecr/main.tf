@@ -42,7 +42,7 @@ resource "aws_iam_role" "ecr_admin_role" {
 resource "aws_iam_role_policy" "ecr_admin_role_policy" {
   role = aws_iam_role.ecr_admin_role.id
 
-  name = "bhp_ecr_admin_role_policy_${var.environment}"
+  name = "bfl_ecr_admin_role_policy_${var.environment}"
 
   policy = <<-POLICY
   {
