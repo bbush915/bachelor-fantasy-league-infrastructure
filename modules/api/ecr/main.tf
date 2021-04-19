@@ -8,17 +8,16 @@ terraform {
   backend "s3" {}
 }
 
-resource "aws_ecr_repository" "default" {
+resource "aws_ecr_repository" "api_ecr_repository" {
   name = "bfl_api_repository_${var.environment}"
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_api_repository_${var.environment}"
   }
 }
 
-resource "aws_iam_role" "ecr_admin_role" {
-  name = "bbfl_ecr_admin_role_${var.environment}"
+resource "aws_iam_role" "api_ecr_admin_role" {
+  name = "bfl_ecr_admin_role_${var.environment}"
 
   assume_role_policy = <<-POLICY
   {
@@ -39,8 +38,8 @@ resource "aws_iam_role" "ecr_admin_role" {
   POLICY
 }
 
-resource "aws_iam_role_policy" "ecr_admin_role_policy" {
-  role = aws_iam_role.ecr_admin_role.id
+resource "aws_iam_role_policy" "api_ecr_admin_role_policy" {
+  role = aws_iam_role.api_ecr_admin_role.id
 
   name = "bfl_ecr_admin_role_policy_${var.environment}"
 

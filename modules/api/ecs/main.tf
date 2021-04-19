@@ -32,7 +32,7 @@ data "terraform_remote_state" "api_elb" {
   }
 }
 
-data "terraform_remote_state" "api_vpc" {
+data "terraform_remote_state" "bfl_vpc" {
   backend = "s3"
 
   config = {
@@ -150,8 +150,8 @@ resource "aws_ecs_task_definition" "api_task_definition" {
   }
 }
 
-resource "aws_security_group" "api_task_security_group" {
-  vpc_id = data.terraform_remote_state.api_vpc.outputs.vpc_id
+resource "aws_security_group" "api_task_sg" {
+  vpc_id = data.terraform_remote_state.bfl_vpc.outputs.vpc_id
 
   ingress {
     from_port       = 4000
@@ -180,8 +180,8 @@ resource "aws_ecs_service" "api_ecs_service" {
   desired_count    = 1
 
   network_configuration {
-    subnets          = data.terraform_remote_state.api_vpc.outputs.public_subnet_ids
-    security_groups  = [aws_security_group.api_task_security_group.id]
+    subnets          = data.terraform_remote_state.bfl_vpc.outputs.public_subnet_ids
+    security_groups  = [aws_security_group.api_task_sg.id]
     assign_public_ip = true
   }
 

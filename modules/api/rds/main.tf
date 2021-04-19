@@ -23,8 +23,7 @@ data "terraform_remote_state" "bfl_vpc" {
 
 /* End Previously Defined Resources */
 
-resource "aws_security_group" "default" {
-  name   = "bfl_rds_security_group_${var.environment}"
+resource "aws_security_group" "api_db_sg" {
   vpc_id = data.terraform_remote_state.bfl_vpc.outputs.vpc_id
 
   ingress {
@@ -43,16 +42,14 @@ resource "aws_security_group" "default" {
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_rds_sg_${var.environment}"
   }
 }
 
-resource "aws_db_subnet_group" "default" {
-  name       = "bfl_db_subnet_group_${var.environment}"
+resource "aws_db_subnet_group" "api_db_subnet_group" {
   subnet_ids = data.terraform_remote_state.bfl_vpc.outputs.private_subnet_ids
 }
 
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "api_db" {
   allocated_storage      = 20
   storage_type           = "gp2"
   engine                 = "postgres"
@@ -62,12 +59,11 @@ resource "aws_db_instance" "default" {
   name                   = var.name
   username               = var.username
   password               = var.password
-  vpc_security_group_ids = [aws_security_group.default.id]
-  db_subnet_group_name   = aws_db_subnet_group.default.name
+  vpc_security_group_ids = [aws_security_group.api_db_sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.api_db_subnet_group.name
   apply_immediately      = true
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_db_instance_${var.environment}"
   }
 }

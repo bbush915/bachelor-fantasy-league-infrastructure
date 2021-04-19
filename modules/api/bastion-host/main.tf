@@ -23,7 +23,7 @@ data "terraform_remote_state" "bfl_vpc" {
 
 /* End Previously Defined Resources */
 
-resource "aws_security_group" "default" {
+resource "aws_security_group" "api_bastion_host_sg" {
   vpc_id = data.terraform_remote_state.bfl_vpc.outputs.vpc_id
 
   ingress {
@@ -45,12 +45,12 @@ resource "aws_security_group" "default" {
   }
 }
 
-resource "aws_instance" "default" {
+resource "aws_instance" "api_bastion_host" {
   ami                    = "ami-0742b4e673072066f"
   instance_type          = "t2.micro"
   key_name               = var.ssh_key
   subnet_id              = data.terraform_remote_state.bfl_vpc.outputs.public_subnet_ids[0]
-  vpc_security_group_ids = [aws_security_group.default.id]
+  vpc_security_group_ids = [aws_security_group.api_bastion_host_sg.id]
 
   tags = {
     Application = "Bachelor Fantasy League"

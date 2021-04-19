@@ -1,3 +1,3 @@
 output "ecr_admin_role_arn" {
-  value = "${aws_iam_role.ecr_admin_role.arn}"
+  value = "${aws_iam_role.api_ecr_admin_role.arn}"
 }

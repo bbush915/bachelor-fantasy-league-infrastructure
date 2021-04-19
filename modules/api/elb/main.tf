@@ -21,7 +21,7 @@ data "terraform_remote_state" "bfl_vpc" {
   }
 }
 
-data "terraform_remote_state" "bfl_acm" {
+data "terraform_remote_state" "web_app_acm" {
   backend = "s3"
 
   config = {
@@ -72,6 +72,10 @@ resource "aws_alb_target_group" "api_lb_target" {
   port        = 4000
   target_type = "ip"
 
+  health_check {
+    path = "/.well-known/apollo/server-health"
+  }
+
   tags = {
     Application = "Bachelor Fantasy League"
   }
@@ -82,7 +86,7 @@ resource "aws_alb_listener" "api_lb_listener" {
 
   protocol        = "HTTPS"
   port            = 443
-  certificate_arn = data.terraform_remote_state.bfl_acm.outputs.certificate_arn
+  certificate_arn = data.terraform_remote_state.web_app_acm.outputs.certificate_arn
 
   default_action {
     target_group_arn = aws_alb_target_group.api_lb_target.arn

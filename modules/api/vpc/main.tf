@@ -8,17 +8,16 @@ terraform {
   backend "s3" {}
 }
 
-resource "aws_vpc" "default" {
+resource "aws_vpc" "bfl_vpc" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_vpc_${var.environment}"
   }
 }
 
-resource "aws_default_security_group" "default" {
-  vpc_id = aws_vpc.default.id
+resource "aws_default_security_group" "bfl_vpc_default_sg" {
+  vpc_id = aws_vpc.bfl_vpc.id
 
   ingress {
     from_port   = 0
@@ -36,28 +35,26 @@ resource "aws_default_security_group" "default" {
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_default_sg_${var.environment}"
   }
 }
 
-resource "aws_internet_gateway" "default" {
-  vpc_id = aws_vpc.default.id
+resource "aws_internet_gateway" "bfl_ig" {
+  vpc_id = aws_vpc.bfl_vpc.id
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_ig_${var.environment}"
   }
 }
 
 resource "aws_route" "default" {
-  route_table_id         = aws_vpc.default.main_route_table_id
+  route_table_id         = aws_vpc.bfl_vpc.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.default.id
+  gateway_id             = aws_internet_gateway.bfl_ig.id
 }
 
-resource "aws_subnet" "public_1" {
+resource "aws_subnet" "bfl_public_subnet_1" {
   availability_zone       = "${var.aws_region}a"
-  vpc_id                  = aws_vpc.default.id
+  vpc_id                  = aws_vpc.bfl_vpc.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
 
@@ -66,9 +63,9 @@ resource "aws_subnet" "public_1" {
   }
 }
 
-resource "aws_subnet" "public_2" {
+resource "aws_subnet" "bfl_public_subnet_2" {
   availability_zone       = "${var.aws_region}d"
-  vpc_id                  = aws_vpc.default.id
+  vpc_id                  = aws_vpc.bfl_vpc.id
   cidr_block              = "10.0.4.0/24"
   map_public_ip_on_launch = true
 
@@ -77,36 +74,34 @@ resource "aws_subnet" "public_2" {
   }
 }
 
-resource "aws_route_table_association" "default" {
-  subnet_id      = aws_subnet.public_1.id
-  route_table_id = aws_vpc.default.main_route_table_id
+resource "aws_route_table_association" "bfl_rta_public_1" {
+  subnet_id      = aws_subnet.bfl_public_subnet_1.id
+  route_table_id = aws_vpc.bfl_vpc.main_route_table_id
 }
 
-resource "aws_route_table_association" "public_2" {
-  subnet_id      = aws_subnet.public_2.id
-  route_table_id = aws_vpc.default.main_route_table_id
+resource "aws_route_table_association" "bfl_rta_public_2" {
+  subnet_id      = aws_subnet.bfl_public_subnet_2.id
+  route_table_id = aws_vpc.bfl_vpc.main_route_table_id
 }
 
-resource "aws_subnet" "private_1" {
+resource "aws_subnet" "bfl_private_subnet_1" {
   availability_zone       = "${var.aws_region}b"
-  vpc_id                  = aws_vpc.default.id
+  vpc_id                  = aws_vpc.bfl_vpc.id
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = false
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_private_subnet_1_${var.environment}"
   }
 }
 
-resource "aws_subnet" "private_2" {
+resource "aws_subnet" "bfl_private_subnet_2" {
   availability_zone       = "${var.aws_region}c"
-  vpc_id                  = aws_vpc.default.id
+  vpc_id                  = aws_vpc.bfl_vpc.id
   cidr_block              = "10.0.3.0/24"
   map_public_ip_on_launch = false
 
   tags = {
     Application = "Bachelor Fantasy League"
-    Name        = "bfl_private_subnet_2_${var.environment}"
   }
 }
